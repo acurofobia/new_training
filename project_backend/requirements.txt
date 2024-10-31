@@ -1,0 +1,5 @@
+docxtpl
+Flask
+Flask-Cors
+Flask-RESTful
+Flask-SQLAlchemy
