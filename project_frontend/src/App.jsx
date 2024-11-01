@@ -1,35 +1,46 @@
 import React from 'react'
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useState } from 'react';
 import HomePage from './pages/HomePage';
-import AdminPage from './pages/AdminPage';
-import TestPage from './pages/TestPage';
+import LoginPage from './pages/LoginPage';
 import TrainPage from './pages/TrainPage';
+import AdminPage from './pages/AdminPage';
+import RegisterPage from './pages/RegisterPage';
+import CategoriesPage from './pages/CategoriesPage';
+import NumbersOfQuestionsPage from './pages/NumbersOfQuestionsPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import QuestionPage from './pages/QuestionPage';
-import ResultPage from './pages/ResultPage';
-import PraktPage from './pages/PraktPage';
-import PraktResultPage from './pages/PraktResultPage';
-import ScrollToTop from './components/ScrollToTop';
 import './App.css';
-import './styles/main.css'
 
 const App = () => {
-    const router = createBrowserRouter(
-    createRoutesFromElements(
-    <>
-      <Route index element={ <HomePage /> }></Route>
-      <Route path='/admin' element={ <AdminPage /> }></Route>
-      <Route path='/test' element={ <TestPage/> }></Route>
-      <Route path='/train' element={ <TrainPage /> }></Route>
-      <Route path='/result' element={ <ResultPage /> }></Route>
-      <Route path='/praktresult' element={ <PraktResultPage /> }></Route>
-      <Route path='/prakt/:number' element={ <PraktPage /> }></Route>
-      <Route path='/question/:number' element={ <QuestionPage /> }></Route>
-    </>
-  ));
+  const [auth, setAuth] = useState(false);
 
   return (
-    <RouterProvider router={router} />
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="login" element={<LoginPage setAuth={setAuth} />} />
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="train"
+          element={
+            <ProtectedRoute>
+              <TrainPage />
+            </ProtectedRoute>
+          }/>
+        <Route path="train/:org/categories" element={<CategoriesPage />} />
+        <Route path="train/:org/categories/:category" element={<NumbersOfQuestionsPage />} />
+        <Route path="train/:org/categories/:category/:questionNum" element={<QuestionPage />} />
+      </Routes>
+    </Router>
+  );
+};
 
 export default App

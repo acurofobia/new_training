@@ -1,10 +1,16 @@
-from flask import Flask
-from flask_restful import Api, Resource, abort, reqparse
-from flask_sqlalchemy import SQLAlchemy
-import json
+# from flask import Flask
+# from flask_restful import Api, Resource, abort, reqparse
+# from flask_sqlalchemy import SQLAlchemy
+# import json
 from flask_cors import CORS
-from docxtpl import DocxTemplate
-import pathlib
+# from docxtpl import DocxTemplate
+# import pathlib
+
+from flask import Flask, jsonify, request
+from flask_restful import Api, Resource
+from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'

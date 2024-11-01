@@ -1,31 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import Question from '../components/Question';
-import ScrollToTop from '../components/ScrollToTop';
-import '../styles/questionPage.css'
-import CountdownTimer from '../components/CountdownTimer';
+import React from 'react'
+import { useParams, useLocation } from 'react-router-dom'
+import { useState } from 'react';
 
 const QuestionPage = () => {
-  const {number} = useParams();
-  const [end, setEnd] = useState(false);
-  const navigate = useNavigate();
-  const [arrayOfCheckedAnswers, setArrayOfCheckedAnswers] = useState([]);
-
-  useEffect(() => {
-    if (end) {
-      navigate('/result', {state: arrayOfCheckedAnswers});
-    }
-  }, [end]);
-  
+  const [selectedAnswer, setSelectedAnswer] = useState(0);
+  const { questionNum } = useParams();
+  const { state } = useLocation();
+  const question = state.question;
   return (
-    <>
-      <ScrollToTop></ScrollToTop>
-      <CountdownTimer setEnd={setEnd}></CountdownTimer>
-      <div className='question-page-wrapper'>
-        <Question key={number} number={number} setEnd={setEnd} arrayOfCheckedAnswers={arrayOfCheckedAnswers} setArrayOfCheckedAnswers={setArrayOfCheckedAnswers}></Question>
-      </div>
-      {/* <button onClick={() => setEnd(true)}>123</button> */}
-    </>
+    <div>
+      <h1>QuestionPage {questionNum}</h1>
+      <h2>{question.question}</h2>
+      <ul>
+        {Object.keys(question.answers).map(answerNum => {
+          return <li key={answerNum}>
+            <input onChange={() => setSelectedAnswer(answerNum)} type="radio" id={answerNum} name="answer" />
+            <label htmlFor={answerNum}>{question.answers[answerNum].answer}</label>
+          </li>
+        })}
+      </ul>
+      {selectedAnswer}
+    </div>
   )
 }
 
