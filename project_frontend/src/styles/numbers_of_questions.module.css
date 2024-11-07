@@ -1,0 +1,12 @@
+.ul {
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  grid-template-columns: repeat(auto-fill, 50px);
+  grid-gap: 1rem;
+  justify-content: space-between;
+}
+
+.link_button {
+  width: 50px;
+}

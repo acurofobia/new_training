@@ -1,17 +1,20 @@
 // src/components/ProtectedPage.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AdminPage = () => {
-  // const [data, setData] = useState(null);
 
   // useEffect(() => {
   //   const fetchData = async () => {
   //     const token = localStorage.getItem('token');
-  //     const response = await axios.get('http://127.0.0.1:5000/protected', {
+  //     try {const response = await axios.get('http://127.0.0.1:5000/protected', {
   //       headers: { Authorization: `Bearer ${token}` }
   //     });
-  //     setData(response.data);
+  //     return response.status;
+  //     } catch (error) {
+  //       navigate("/login_requiered");
+  //     } 
   //   };
   //   fetchData();
   // }, []);
