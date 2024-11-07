@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Form from '../components/Form';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -10,9 +11,8 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:5000/register', { username, password });
+      await axios.post('/api/register', { username, password });
       navigate('/login');
     } catch (err) {
       setError('User already exists or error in registration');
@@ -20,12 +20,12 @@ const RegisterPage = () => {
   };
 
   return (
-    <form onSubmit={handleRegister}>
-      <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      <button type="submit">Register</button>
-      {error && <p>{error}</p>}
-    </form>
+    <Form handleSubmitForm={ handleRegister } 
+    username={ username } 
+    password={ password } 
+    setUsername={ setUsername }
+    setPassword={ setPassword }
+    type={ "Зарегистрироваться" }></Form>
   );
 };
 

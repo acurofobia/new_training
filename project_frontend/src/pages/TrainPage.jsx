@@ -22,16 +22,16 @@ const TrainPage = () => {
       <nav>
         <ul>
           <li>
-            <Link to="/train/fda/categories">ФДА</Link>
+            <Link className='link_button' to="/train/fda/categories">ФДА</Link>
           </li>
           <li>
-            <Link to="/train/favt_mos/categories">ФАВТ Москва</Link>
+            <Link className='link_button' to="/train/favt_mos/categories">ФАВТ Москва</Link>
           </li>
           <li>
-            <Link to="/train/favt_ul/categories">ФАВТ Ульяновск</Link>
+            <Link className='link_button' to="/train/favt_ul/categories">ФАВТ Ульяновск</Link>
           </li>
           <li>
-            <Link to="/train/fazt/categories">ФАЖТ</Link>
+            <Link className='link_button' to="/train/fazt/categories">ФАЖТ</Link>
           </li>
         </ul>
       </nav>

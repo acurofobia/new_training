@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import styles from "../styles/numbers_of_questions.module.css"
 
 const TestsComponent = () => {
   let {category} = useParams();
@@ -10,22 +11,20 @@ const TestsComponent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`http://127.0.0.1:5000/get_test/${org}/${category}`);
+      const response = await axios.get(`/api/get_test/${org}/${category}`);
       setQuestions(response.data.data);
     };
     fetchData();
   }, []);
 
   return (
-    <div>
-      <ul>
-        {Object.keys(questions).map(question => 
-          <li key={question}>
-            <Link to={`${question}`} state={{question: questions[question]}}>{question}</Link>
-          </li>
-        )}
-      </ul>
-    </div>
+    <ul className={styles.ul}>
+      {Object.keys(questions).map(question => 
+        <li key={question}>
+          <Link className={[styles.link_button, "link_button"].join(" ")} to={`${question}`} state={{question: questions[question], org: org, category: category}}>{question}</Link>
+        </li>
+      )}
+    </ul>
   )
 }
 

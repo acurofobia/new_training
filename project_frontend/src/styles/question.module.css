@@ -1,0 +1,22 @@
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: green;
+}
+
+:disabled {
+  background-color: white;
+  color: gray;
+  cursor: not-allowed;
+}
+
+:disabled:hover {
+  box-shadow: none;
+}
+
+.link_button {
+  margin-top: 20px;
+  background-color: transparent;
+}

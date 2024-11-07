@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  /* border: 2px solid var(--color1); */
+  border-radius: 20px;
+  padding: 10px;
+  -webkit-box-shadow: 6px 6px 35px 7px rgba(88, 88, 88, 0.17);
+  -moz-box-shadow: 6px 6px 35px 7px rgba(88, 88, 88, 0.17);
+  box-shadow: 6px 6px 35px 7px rgba(88, 88, 88, 0.17);
+}
+
+.input {
+
+}
