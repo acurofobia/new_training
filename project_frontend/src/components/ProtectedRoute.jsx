@@ -34,7 +34,9 @@ const ProtectedRoute = ({ children }) => {
 
   const fetchData = async () => {
     // const accessToken = localStorage.getItem('accessToken');
-    try {const response = await axios.get('/api/protected', {
+    try {
+      
+      const response = await axios.get('/api/protected', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     console.log(response)

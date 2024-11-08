@@ -53,7 +53,7 @@ const QuestionPage = () => {
   return (
     <div>
       <h1>Вопрос № {question_number}</h1>
-      <h2>{question.question}</h2>
+      <h3>{question.question}</h3>
       <ul>
         {Object.keys(question.answers).map(answerNum => {
           return <li 

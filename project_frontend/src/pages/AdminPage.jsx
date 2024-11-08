@@ -2,27 +2,28 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import UsersTable from '../components/usersTable';
 
 const AdminPage = () => {
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const token = localStorage.getItem('token');
-  //     try {const response = await axios.get('http://127.0.0.1:5000/protected', {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     });
-  //     return response.status;
-  //     } catch (error) {
-  //       navigate("/login_requiered");
-  //     } 
-  //   };
-  //   fetchData();
-  // }, []);
+  const onClick = async () => {
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      const response = await axios.get("/api/get_users", {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+    
+  }
 
   return (
     <div>
       <h2>Admin Page</h2>
-      {/* {data ? <p>{data.logged_in_as.username}</p> : <p>Loading...</p>} */}
+      <UsersTable></UsersTable>
+      <button onClick={() => onClick()}>1</button>
     </div>
   );
 };

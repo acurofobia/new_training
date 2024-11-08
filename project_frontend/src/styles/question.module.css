@@ -1,9 +1,9 @@
 .red {
-  background-color: red;
+  background-color: #ef5151;
 }
 
 .green {
-  background-color: green;
+  background-color: rgb(95, 165, 95);
 }
 
 :disabled {

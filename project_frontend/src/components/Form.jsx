@@ -17,11 +17,11 @@ const Form = ({ handleSubmitForm, username, password, setUsername, setPassword, 
         onChange={(e) => setUsername(e.target.value)} />
       <label htmlFor="username">{errors.username && "Логин 1-10 символов, латинские буквы и цифры"}</label>
       <label htmlFor="password">Пароль</label>
-      <input type="password" id='password' value={password} 
+      <input className='input' type="password" id='password' value={password} 
         {...register("password", {required: true, pattern: /^([A-Za-z0-9]){1,10}$/gm})}
         onChange={(e) => setPassword(e.target.value)} />
       <label htmlFor="password">{errors.password && "Пароль 1-10 символов, латинские буквы и цифры"}</label>
-      <button type="submit">{ type }</button>
+      <button className='link_button' type="submit">{ type }</button>
     </form>
   )
 }

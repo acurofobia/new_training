@@ -13,8 +13,13 @@ const TestsComponent = () => {
     const fetchData = async () => {
       const response = await axios.get(`/api/get_test/${org}/${category}`);
       setQuestions(response.data.data);
+      localStorage.setItem("questions", JSON.stringify(response.data.data));
     };
-    fetchData();
+    if (!localStorage.getItem("questions")){
+      fetchData();
+    } else {
+      setQuestions(JSON.parse(localStorage.getItem("questions")));
+    } 
   }, []);
 
   return (

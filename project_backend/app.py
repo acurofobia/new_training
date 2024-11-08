@@ -112,6 +112,14 @@ class Result(Resource):
         db.session.commit()
         return {"message": "Result added successfully"}, 200
 
+class Users(Resource):
+    @jwt_required()
+    def get(self):
+        users = User.query.all()
+        response = []
+        for user in users:
+           response.append({"id": user.id, "username": user.username})
+        return response, 200
 
 
 api.add_resource(Register, "/api/register")
@@ -121,6 +129,7 @@ api.add_resource(RefreshToken, "/api/refresh")
 api.add_resource(Logout, "/api/logout")
 api.add_resource(GetTest, "/api/get_test/<string:org>/<string:category>")
 api.add_resource(Result, "/api/add_result")
+api.add_resource(Users, "/api/get_users")
 
 if __name__ == "__main__":
     with app.app_context():
