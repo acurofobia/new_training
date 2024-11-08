@@ -1,0 +1,3 @@
+.venv
+project_frontend/node_modules
+prject_backend/__pycache__
