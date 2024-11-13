@@ -8,6 +8,7 @@ import TrainPage from './pages/TrainPage';
 import AdminPage from './pages/AdminPage';
 import RegisterPage from './pages/RegisterPage';
 import CategoriesPage from './pages/CategoriesPage';
+import ModeChoicePage from './pages/ModeChoicePage';
 import NumbersOfQuestionsPage from './pages/NumbersOfQuestionsPage';
 import LoginRequired from './pages/LoginRequired';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -34,13 +35,14 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="login_requiered" element={<LoginRequired />} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="login" element={<LoginPage 
-                                      setAuth={setAuth} />} />
+        <Route path="login" element={<LoginPage setAuth={setAuth} />} />
         <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>}/>
         <Route path="train" element={<ProtectedRoute><TrainPage /></ProtectedRoute>}/>
-        <Route path="train/:org/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
-        <Route path="train/:org/categories/:category" element={<ProtectedRoute><NumbersOfQuestionsPage /></ProtectedRoute>} />
-        <Route path="train/:org/categories/:category/:question_number" element={<ProtectedRoute><QuestionPage /></ProtectedRoute>} />
+        <Route path="train/:org/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>}></ Route>
+        <Route path="train/:org/categories/:category/mode" element={<ProtectedRoute><ModeChoicePage /></ProtectedRoute>} />
+        <Route path="train/:org/categories/:category/mode/all_questions" element={<ProtectedRoute><NumbersOfQuestionsPage /></ProtectedRoute>} />
+        <Route path="train/:org/categories/:category/mode/all_questions/:question_number" element={<ProtectedRoute><QuestionPage mode="all_questions" /></ProtectedRoute>} />
+        <Route path="train/:org/categories/:category/mode/questions_by_query/:question_number" element={<ProtectedRoute><QuestionPage mode="questions_by_query"/></ProtectedRoute>} />
       </Routes>
     </Router>
   );

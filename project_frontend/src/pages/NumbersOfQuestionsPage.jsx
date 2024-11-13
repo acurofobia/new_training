@@ -26,7 +26,7 @@ const TestsComponent = () => {
     <ul className={styles.ul}>
       {Object.keys(questions).map(question => 
         <li key={question}>
-          <Link className={[styles.link_button, "link_button"].join(" ")} to={`${question}`} state={{question: questions[question], org: org, category: category}}>{question}</Link>
+          <Link className={[styles.link_button, "link_button"].join(" ")} to={`${question}`} state={{questions: questions, org: org, category: category}}>{question}</Link>
         </li>
       )}
     </ul>

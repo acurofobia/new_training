@@ -1,19 +1,20 @@
 import React from 'react'
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { refreshAccessToken } from '../components/refresh_logout';
 import { definePoints } from '../components/definePoints';
 import styles from "../styles/question.module.css"
 import { defineColor } from '../components/defineColor';
 
-const QuestionPage = () => {
+const QuestionPage = ({mode}) => {
   const [answer_number, setSelectedAnswer] = useState(0);
   const [itemColor, setItemColor] = useState({});
   const [answered, setAnswered] = useState(false);
   const { question_number } = useParams();
   const { state } = useLocation();
-  const question = state.question;
+  const questions = state.questions;
+  const question = questions[question_number];
   const org = state.org;
   const category = state.category;
   const navigate = useNavigate();
@@ -43,6 +44,12 @@ const QuestionPage = () => {
     }
   }
 
+  useEffect(() => {
+    setAnswered(false);
+    setItemColor({});
+    console.log("Data ID changed:", question_number);
+  }, [question_number]);
+
   const selectColor = (key) => {
     console.log(key, itemColor);
     const red = itemColor.red == key ? styles.red : "";
@@ -51,7 +58,7 @@ const QuestionPage = () => {
   }
 
   return (
-    <div>
+    <div key={question_number}>
       <h1>Вопрос № {question_number}</h1>
       <h3>{question.question}</h3>
       <ul>
@@ -65,7 +72,8 @@ const QuestionPage = () => {
         })}
       </ul>
       {!answered && <button className={[styles.link_button, "link_button"].join(" ")} onClick={() => checkAndSend()}>Проверить и отправить</button>}
-      {answered && <Link to={-1} className={[styles.link_button, "link_button"].join(" ")}>Назад к вопросам</Link>}
+      {(answered && mode == "questions_by_query") && <Link to={`../${parseInt(question_number) + 1}`} relative="path" state={{questions: questions, org: org, category: category}} className={[styles.link_button, "link_button"].join(" ")}>Следующий вопрос</Link>}
+      {(answered && mode == "all_questions") && <Link to={-1} className={[styles.link_button, "link_button"].join(" ")}>Перейти к списку вопросов</Link>}
     </div>
   )
 }
