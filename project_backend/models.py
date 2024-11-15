@@ -27,3 +27,10 @@ class Results(db.Model):
     points = db.Column(db.Integer)
     datetime = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class LastResult(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    org = db.Column(db.String(100), nullable=False)
+    category = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    results_id = db.Column(db.Integer, db.ForeignKey('results.id'))

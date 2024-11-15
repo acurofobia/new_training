@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
 from flask_jwt_extended import JWTManager, create_access_token, get_jti, get_jwt, create_refresh_token, jwt_required, get_jwt_identity
 from config import Config
-from models import db, User, Results
+from models import db, User, Results, LastResult
 from flask_cors import CORS
 import json
 import datetime
@@ -98,9 +98,8 @@ class Result(Resource):
     @jwt_required()
     def post(self):
         data = request.get_json()
-        print(data)
         current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
+        user = db.session.get(User, current_user_id)
         results = Results(org=data["org"], 
             category=data["category"], 
             question_number = data["question_number"], 
@@ -110,6 +109,20 @@ class Result(Resource):
             user_id=user.id)
         db.session.add(results)
         db.session.commit()
+        result_id = Results.query.order_by(Results.id.desc()).first().id
+        last_result = LastResult.query.filter_by(org=data["org"], 
+                                                 category=data["category"],
+                                                 user_id=user.id).first()
+        if last_result:
+            last_result.results_id = result_id
+            db.session.commit()
+        else :
+            last_result = LastResult(user_id=user.id, 
+                                     results_id=result_id, 
+                                     org=data["org"],
+                                     category=data["category"])
+            db.session.add(last_result)
+            db.session.commit()
         return {"message": "Result added successfully"}, 200
 
 class Users(Resource):
@@ -121,6 +134,23 @@ class Users(Resource):
            response.append({"id": user.id, "username": user.username})
         return response, 200
 
+class LastQuestion(Resource):
+    @jwt_required()
+    def get(self, org, category):
+        current_user_id = get_jwt_identity()
+        last_result = LastResult.query.filter_by(user_id=current_user_id,
+                                                 org=org,
+                                                 category=category).first()
+        if last_result:
+            results = Results.query.filter_by(user_id=current_user_id,
+                                              org=org,
+                                              category=category).order_by(Results.question_number.desc()).first()
+            return {"last_answered": results.question_number}, 200
+        else:
+            return {"last_answered": 0}, 200
+            
+
+        
 
 api.add_resource(Register, "/api/register")
 api.add_resource(Login, "/api/login")
@@ -130,6 +160,11 @@ api.add_resource(Logout, "/api/logout")
 api.add_resource(GetTest, "/api/get_test/<string:org>/<string:category>")
 api.add_resource(Result, "/api/add_result")
 api.add_resource(Users, "/api/get_users")
+api.add_resource(LastQuestion, "/api/get_last_question/<string:org>/<string:category>")
+
+with app.app_context():
+        db.drop_all()
+        db.create_all()
 
 if __name__ == "__main__":
     with app.app_context():
