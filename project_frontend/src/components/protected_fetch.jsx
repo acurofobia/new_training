@@ -1,16 +1,16 @@
 import axios from "axios";
 import { refreshAccessToken } from "./refresh_logout";
-import { useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
-
-export const protected_fetch = async (string) => {
+export const protected_fetch = async (navigate, method, url, accessToken, data=null) => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-    const response = await axios.get(string, {
+    const response = await axios({
+      url: url,
+      method: method,
+      data: data,
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-    return response.data.last_answered
+    console.log(response.data)
+    return response.data;
   } catch (error) {
     if (error.status == 401) {
       const result = await refreshAccessToken();

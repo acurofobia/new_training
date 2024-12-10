@@ -1,11 +1,11 @@
 import React from 'react'
+import axios from 'axios';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { refreshAccessToken } from '../components/refresh_logout';
 import { definePoints } from '../components/definePoints';
-import styles from "../styles/question.module.css"
 import { defineColor } from '../components/defineColor';
+import { protected_fetch } from '../components/protected_fetch';
+import styles from "../styles/question.module.css"
 
 const QuestionPage = ({mode}) => {
   const [answer_number, setSelectedAnswer] = useState(0);
@@ -19,29 +19,16 @@ const QuestionPage = ({mode}) => {
   const category = state.category;
   const navigate = useNavigate();
 
-  const checkAndSend = async () => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const points = definePoints(question, answer_number);
-      const response = await axios.post(`/api/add_result`, {"org": org, 
-        "category": category, 
-        "question_number": question_number, 
-        "answer_number": answer_number, 
-        "points": points}, { headers: { Authorization: `Bearer ${accessToken}` } });
-        setItemColor(defineColor(question, answer_number));
-        setAnswered(true);
-    } catch (error) {
-      if (error.status == 401) {
-        const result = await refreshAccessToken();
-        if (result == "OK") {
-          checkAndSend();
-        } else {
-          navigate(`${result}`);
-        }
-      } else {
-        console.log(error);
-      }
-    }
+  const checkAndSend = (e) => {
+    e.preventDefault();
+    const accessToken = localStorage.getItem('accessToken');
+    const data = protected_fetch(navigate ,"POST", "/api/add_result", accessToken, {"org": org, 
+      "category": category, 
+      "question_number": question_number, 
+      "answer_number": answer_number});
+    // setItemColor(defineColor(question, answer_number));
+    setAnswered(true);
+    console.log(data);
   }
 
   useEffect(() => {
@@ -49,6 +36,14 @@ const QuestionPage = ({mode}) => {
     setItemColor({});
     console.log("Data ID changed:", question_number);
   }, [question_number]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = protected_fetch(navigate, "GET", `/api/get_question/${org}/${category}/${question_number}`)
+      console.log(response.data, "HERE");
+    }
+    fetchData();
+  },[]);
 
   const selectColor = (key) => {
     console.log(key, itemColor);
@@ -58,7 +53,7 @@ const QuestionPage = ({mode}) => {
   }
 
   return (
-    <div key={question_number}>
+    <form onSubmit={checkAndSend} key={question_number}>
       <h1>Вопрос № {question_number}</h1>
       <h3>{question.question}</h3>
       <ul>
@@ -71,10 +66,10 @@ const QuestionPage = ({mode}) => {
           </li>
         })}
       </ul>
-      {!answered && <button className={[styles.link_button, "link_button"].join(" ")} onClick={() => checkAndSend()}>Проверить и отправить</button>}
+      {!answered && <button className={[styles.link_button, "link_button"].join(" ")} type='submit'>Проверить и отправить</button>}
       {(answered && mode == "questions_by_query") && <Link to={`../${parseInt(question_number) + 1}`} relative="path" state={{questions: questions, org: org, category: category}} className={[styles.link_button, "link_button"].join(" ")}>Следующий вопрос</Link>}
       {(answered && mode == "all_questions") && <Link to={-1} className={[styles.link_button, "link_button"].join(" ")}>Перейти к списку вопросов</Link>}
-    </div>
+    </form>
   )
 }
 

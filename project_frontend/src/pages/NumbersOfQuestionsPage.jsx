@@ -7,28 +7,23 @@ const TestsComponent = () => {
   let {category} = useParams();
   let {org} = useParams();
 
-  const [questions, setQuestions] = useState({});
+  const [numbersOfQuestions, setNumbersOfQuestions] = useState([]);
 
-  useEffect(() => {
+  useEffect(() =>  {
     const fetchData = async () => {
-      const response = await axios.get(`/api/get_test/${org}/${category}`);
-      setQuestions(response.data.data);
-      localStorage.setItem("questions", JSON.stringify(response.data.data));
-    };
-    if (!localStorage.getItem("questions")){
-      fetchData();
-    } else {
-      setQuestions(JSON.parse(localStorage.getItem("questions")));
-    } 
+      const response = await axios.get(`/api/numbers_of_questions/${org}/${category}`);
+      setNumbersOfQuestions(response.data.numbers);
+    }
+    fetchData();
   }, []);
 
   return (
     <ul className={styles.ul}>
-      {Object.keys(questions).map(question => 
-        <li key={question}>
-          <Link className={[styles.link_button, "link_button"].join(" ")} to={`${question}`} state={{questions: questions, org: org, category: category}}>{question}</Link>
+      {numbersOfQuestions.map(number => (
+        <li key={number}>
+          <Link className={[styles.link_button, "link_button"].join(" ")} to={`${number}`} state={{org: org, category: category}}>{number}</Link>
         </li>
-      )}
+      ))}
     </ul>
   )
 }
