@@ -30,6 +30,7 @@ const RegisterComponent = ({updateTable}) => {
       "username": data.username,
       "full_name": data.full_name,
       "org": data.org,
+      "doc_number": data.doc_number,
       "password": data.password,
       "allowed_org": allowed_org,
       "allowed_categories": allowed_categories,
@@ -57,6 +58,8 @@ const RegisterComponent = ({updateTable}) => {
       <input type="text" id='full_name' name='full_name' />
       <label htmlFor="org">Организация</label>
       <input type="text" id='org' name='org' />
+      <label htmlFor="doc_number">Номер договора</label>
+      <input type="text" id='doc_number' name='doc_number' />
       <label htmlFor="password">Пароль</label>
       <input type="password" id='password' name='password' />
       <fieldset>

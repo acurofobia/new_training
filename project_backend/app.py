@@ -80,7 +80,8 @@ class Register(Resource):
                         org=data["org"],
                         allowed_org=allowed_org,
                         allowed_categories=allowed_categories,
-                        rights=data["rights"])
+                        rights=data["rights"],
+                        doc_number=data["doc_number"])
         new_user.set_password(data["password"])
         db.session.add(new_user)
         db.session.commit()

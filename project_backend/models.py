@@ -13,6 +13,7 @@ class User(db.Model):
     allowed_org = db.Column(JSON, nullable=True)
     allowed_categories = db.Column(JSON, nullable=True)
     full_name = db.Column(db.String(256), nullable=True)
+    doc_number = db.Column(db.String(256), nullable=True)
     org = db.Column(db.String(256), nullable=True)
     rights = db.Column(db.Integer)
 
