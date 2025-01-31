@@ -5,8 +5,8 @@ import styles from "../styles/login_requiered.module.css"
 const LoginRequired = () => {
   return (
     <div className={styles.wrapper}>
-      <h1>LoginRequired</h1>
-      <Link className='link_button' to={'/login'}>login</Link>
+      <h1>Сначала нужно войти</h1>
+      <Link className='link_button' to={'/login'}>Войти</Link>
     </div>
     
   )
