@@ -8,7 +8,7 @@ const handleLogout = async () => {
     return "/login_requiered";
   } catch (error) {
     console.error("Logout failed", error);
-    return "/login_requiered";
+    return "/login";
   }
 };
 
