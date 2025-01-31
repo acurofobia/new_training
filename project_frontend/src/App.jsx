@@ -13,6 +13,12 @@ import NumbersOfQuestionsPage from './pages/NumbersOfQuestionsPage';
 import LoginRequired from './pages/LoginRequired';
 import ProtectedRoute from './components/ProtectedRoute';
 import QuestionPage from './pages/QuestionPage';
+import EndQuestionPage from './pages/EndQuestionPage';
+import MainLayout from './layouts/MainLayout';
+import PraktTemPage from './prakt_tem/PraktTemPage';
+import PraktTemModeChoicePage from './prakt_tem/PraktTemModeChoicePage';
+import PraktTemEndQuestionPage from './prakt_tem/PraktTemEndQuestionPage';
+import PraktTemNumbersOfQuestionsPage from './prakt_tem/PraktTemNumbersOfQuestionsPage';
 
 const App = () => {
   const [auth, setAuth] = useState(false);
@@ -32,17 +38,26 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="login_requiered" element={<LoginRequired />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="login" element={<LoginPage setAuth={setAuth} />} />
-        <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>}/>
-        <Route path="train" element={<ProtectedRoute><TrainPage /></ProtectedRoute>}/>
-        <Route path="train/:org/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>}></ Route>
-        <Route path="train/:org/categories/:category/mode" element={<ProtectedRoute><ModeChoicePage /></ProtectedRoute>} />
-        <Route path="train/:org/categories/:category/mode/all_questions" element={<ProtectedRoute><NumbersOfQuestionsPage /></ProtectedRoute>} />
-        <Route path="train/:org/categories/:category/mode/all_questions/:question_number" element={<ProtectedRoute><QuestionPage mode="all_questions" /></ProtectedRoute>} />
-        <Route path="train/:org/categories/:category/mode/questions_by_query/:question_number" element={<ProtectedRoute><QuestionPage mode="questions_by_query"/></ProtectedRoute>} />
+        <Route path='/' element={<MainLayout></MainLayout>}>
+          <Route index element={<HomePage />} />
+          <Route path="login_requiered" element={<LoginRequired />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="login" element={<LoginPage setAuth={setAuth} />} />
+          <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>}/>
+          <Route path="train" element={<ProtectedRoute><TrainPage /></ProtectedRoute>}/>
+          <Route path="train/:org/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>}></ Route>
+          <Route path="train/:org/categories/:category/mode" element={<ProtectedRoute><ModeChoicePage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode_pt" element={<ProtectedRoute><PraktTemModeChoicePage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/all_questions" element={<ProtectedRoute><NumbersOfQuestionsPage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/all_questions_pt" element={<ProtectedRoute><PraktTemNumbersOfQuestionsPage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/all_questions/:question_number" element={<ProtectedRoute><QuestionPage mode="all_questions" /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/all_questions_pt/:question_number" element={<ProtectedRoute><PraktTemPage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/questions_by_query" element={<ProtectedRoute><QuestionPage mode="questions_by_query"/></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode_pt/questions_by_query" element={<ProtectedRoute><PraktTemPage/></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode_pt/questions_by_query/end" element={<ProtectedRoute><PraktTemEndQuestionPage/></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/prakt_tem" element={<ProtectedRoute><QuestionPage mode="prakt_tem"/></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode/questions_by_query/end" element={<ProtectedRoute><EndQuestionPage /></ProtectedRoute>} />
+        </Route>
       </Routes>
     </Router>
   );

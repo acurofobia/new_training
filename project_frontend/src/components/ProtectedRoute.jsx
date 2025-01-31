@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import axios from 'axios';
@@ -25,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
     try {
       const response = await axios.post('/api/refresh', {}, { headers: { Authorization: `Bearer ${refreshToken}` } });
       localStorage.setItem('accessToken', response.data.access_token);
-      console.log(children, 'IN REFRESH')
+      // console.log(children, 'IN REFRESH')
     } catch (error) {
       console.error("Token refresh failed", error);
       handleLogout();
@@ -33,14 +33,10 @@ const ProtectedRoute = ({ children }) => {
   };
 
   const fetchData = async () => {
-    // const accessToken = localStorage.getItem('accessToken');
     try {
-      
       const response = await axios.get('/api/protected', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-    console.log(response)
-    console.log(children, 'IN FETCH')
     } catch (error) {
       console.log('watch here', error);
       if (error.status == 422) {

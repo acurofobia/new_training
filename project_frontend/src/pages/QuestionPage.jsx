@@ -1,74 +1,88 @@
 import React from 'react'
-import axios from 'axios';
+import QuestionButton from '../components/QuestionButton';
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
-import { useState, useEffect } from 'react';
-import { definePoints } from '../components/definePoints';
-import { defineColor } from '../components/defineColor';
+import { useState, useEffect, useRef } from 'react';
 import { protected_fetch } from '../components/protected_fetch';
-import styles from "../styles/question.module.css"
 
 const QuestionPage = ({mode}) => {
-  const [answer_number, setSelectedAnswer] = useState(0);
-  const [itemColor, setItemColor] = useState({});
+  const [questionData, setQuestionData] = useState({});
   const [answered, setAnswered] = useState(false);
-  const { question_number } = useParams();
+  let { question_number } = useParams();
   const { state } = useLocation();
-  const questions = state.questions;
-  const question = questions[question_number];
   const org = state.org;
   const category = state.category;
+  if (mode == "questions_by_query"){
+    question_number = state.lastAnswered + 1;
+  }
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const formRef = useRef(null);
+
+  const [loading, setLoading] = useState(true);
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   const checkAndSend = (e) => {
     e.preventDefault();
+    const answer_id = e.target.querySelector('input[name="answer"]:checked').id;
     const accessToken = localStorage.getItem('accessToken');
-    const data = protected_fetch(navigate ,"POST", "/api/add_result", accessToken, {"org": org, 
-      "category": category, 
-      "question_number": question_number, 
-      "answer_number": answer_number});
-    // setItemColor(defineColor(question, answer_number));
-    setAnswered(true);
-    console.log(data);
+    setButtonLoading(true);
+    protected_fetch(navigate ,"POST", "/api/add_result", accessToken,
+      {"org": org,
+      "category": category,
+      "question_number": question_number,
+      "question_id": questionData.question_id,
+      "mode": mode,
+      "answer_id": answer_id}).then(
+        function(result) {
+          const right_answer = result.data.right_answer;
+          formRef.current.querySelector(`#id${answer_id}`).classList.add("red");
+          formRef.current.querySelector(`#id${right_answer}`).classList.add("green");
+          console.log(formRef.current, "FormREF");
+          setAnswered(true);
+          setButtonLoading(false);
+        },
+        function(error){
+          console.log(error, "ERR");
+        }
+      )
   }
-
-  useEffect(() => {
-    setAnswered(false);
-    setItemColor({});
-    console.log("Data ID changed:", question_number);
-  }, [question_number]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = protected_fetch(navigate, "GET", `/api/get_question/${org}/${category}/${question_number}`)
-      console.log(response.data, "HERE");
+      const accessToken = localStorage.getItem('accessToken');
+      setLoading(true);
+      protected_fetch(navigate, "GET", `/api/get_question/${org}/${category}/${question_number}`, accessToken).then(
+        function(result) {
+          setQuestionData(result.data);
+          setLoading(false);
+          setAnswered(false);
+        },
+        function(err) {
+          console.log(err, "ERR")
+        }
+      )
     }
     fetchData();
-  },[]);
+  },[location]);
 
-  const selectColor = (key) => {
-    console.log(key, itemColor);
-    const red = itemColor.red == key ? styles.red : "";
-    const green = itemColor.green == key ? styles.green : "";
-    return [red, green].join(" ");
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <form onSubmit={checkAndSend} key={question_number}>
+    <form ref={formRef} onSubmit={checkAndSend} key={question_number}>
       <h1>Вопрос № {question_number}</h1>
-      <h3>{question.question}</h3>
+      <h3 key={questionData.question_id}>{questionData["question"]}</h3>
       <ul>
-        {Object.keys(question.answers).map(answerNum => {
-          return <li 
-          className={selectColor(answerNum)}
-          key={answerNum}>
-            <input onChange={() => setSelectedAnswer(answerNum)} type="radio" id={answerNum} name="answer" />
-            <label htmlFor={answerNum}>{question.answers[answerNum].answer}</label>
+        {questionData.answers.map(answer => {
+          return <li id={`id${answer.id}`} key={answer.id}>
+            <label>
+              <input type="radio" id={answer.id} key={answer.id} name="answer" />
+              {answer.answer}
+            </label>
           </li>
         })}
       </ul>
-      {!answered && <button className={[styles.link_button, "link_button"].join(" ")} type='submit'>Проверить и отправить</button>}
-      {(answered && mode == "questions_by_query") && <Link to={`../${parseInt(question_number) + 1}`} relative="path" state={{questions: questions, org: org, category: category}} className={[styles.link_button, "link_button"].join(" ")}>Следующий вопрос</Link>}
-      {(answered && mode == "all_questions") && <Link to={-1} className={[styles.link_button, "link_button"].join(" ")}>Перейти к списку вопросов</Link>}
+      <QuestionButton answered={answered} mode={mode} question_number={question_number} org={org} category={category} buttonLoading={buttonLoading}></QuestionButton>
     </form>
   )
 }

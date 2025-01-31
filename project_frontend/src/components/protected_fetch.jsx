@@ -9,18 +9,19 @@ export const protected_fetch = async (navigate, method, url, accessToken, data=n
       data: data,
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-    console.log(response.data)
-    return response.data;
+    return response;
   } catch (error) {
     if (error.status == 401) {
       const result = await refreshAccessToken();
       if (result == "OK") {
-        protected_fetch();
+        const accessToken = localStorage.getItem('accessToken');
+        console.log("Token refreshed");
+        return protected_fetch(navigate, method, url, accessToken, data);
       } else {
         navigate(`${result}`);
       }
     } else {
-      console.log(error);
+      console.log(error, "Error occured in protected fetch");
     }
   }
 }

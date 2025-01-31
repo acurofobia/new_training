@@ -10,3 +10,8 @@
 .link_button {
   width: 50px;
 }
+
+.div {
+  display: grid;
+  gap: 15px;
+}

@@ -5,6 +5,14 @@
                             'embedded-opentype', and 'svg' */
 }
 
+.red {
+  background-color: rgb(205, 87, 87);
+}
+
+.green {
+  background-color: rgb(86, 169, 86);
+}
+
 body {
   margin: 0;
   display: flex;
@@ -60,6 +68,13 @@ ul {
   border: 1px solid black;
   padding: 0 10px 0 10px;
   cursor: pointer;
+}
+
+.link_button_disabled {
+  pointer-events: none;
+  color: gray;
+  text-decoration: none;
+  cursor: default;
 }
 
 .link_button:hover {

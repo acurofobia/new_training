@@ -1,37 +1,36 @@
 // src/components/ProtectedPage.js
 import React, { useEffect, useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import axios from 'axios';
+import { useContext } from 'react';
+import { UserContext } from '../layouts/MainLayout';
+
 
 const TrainPage = () => {
-  // const [data, setData] = useState(null);
+  const { userData, setUserData } = useContext(UserContext);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const token = localStorage.getItem('token');
-  //     const response = await axios.get('http://127.0.0.1:5000/protected', {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     });
-  //     setData(response.data);
-  //   };
-  //   fetchData();
-  // }, []);
+  const checkClass = (org) => {
+    if (userData.allowed_org.includes(org)){
+      return "link_button"
+    } else {
+      return "link_button_disabled link_button"
+    }
+  }
 
   return (
     <div>
       <nav>
         <ul>
           <li>
-            <Link className='link_button' to="/train/fda/categories">ФДА</Link>
+            <Link className={checkClass("fda")} to="/train/fda/categories">ФДА</Link>
           </li>
           <li>
-            <Link className='link_button' to="/train/favt_mos/categories">ФАВТ Москва</Link>
+            <Link className={checkClass("favt_mos")} to="/train/favt_mos/categories">ФАВТ Москва</Link>
           </li>
           <li>
-            <Link className='link_button' to="/train/favt_ul/categories">ФАВТ Ульяновск</Link>
+            <Link className={checkClass("favt_ul")} to="/train/favt_ul/categories">ФАВТ Ульяновск</Link>
           </li>
           <li>
-            <Link className='link_button' to="/train/fazt/categories">ФАЖТ</Link>
+            <Link className={checkClass("fazt")} to="/train/fazt/categories">ФАЖТ</Link>
           </li>
         </ul>
       </nav>
