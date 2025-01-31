@@ -19,25 +19,30 @@ const MainLayout = () => {
     allowed_categories:[],
   });
   const navigate = useNavigate();
-  const accessToken = localStorage.getItem('accessToken');
 
   useEffect(() => {
-    protected_fetch(navigate, "GET",
-      "/api/user_info",
-      accessToken
-    ).then(
-      function(result){
-        setUserData({
-          username: result.data.username,
-          full_name: result.data.full_name,
-          org: result.data.org,
-          rights: result.data.rights,
-          allowed_org: result.data.allowed_org,
-          allowed_categories: result.data.allowed_categories
-        });
-        console.log(userData.allowed_org)
-      }
-    )
+    try{
+      const accessToken = localStorage.getItem('accessToken');
+      protected_fetch(navigate, "GET",
+        "/api/user_info",
+        accessToken
+      ).then(
+        function(result){
+          setUserData({
+            username: result.data.username,
+            full_name: result.data.full_name,
+            org: result.data.org,
+            rights: result.data.rights,
+            allowed_org: result.data.allowed_org,
+            allowed_categories: result.data.allowed_categories
+          });
+          console.log(userData.allowed_org)
+        }
+      )
+    }catch(error){
+      console.log(error);
+    }
+    
     
   }, [location.pathname]);
 
