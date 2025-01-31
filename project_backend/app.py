@@ -11,6 +11,7 @@ import datetime
 app = Flask(__name__, static_folder='../build', static_url_path='/')
 app.config.from_object(Config)
 app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['JWT_VERIFY_SUB'] = False
 # app.config['DEBUG'] = True
 
 db.init_app(app)
