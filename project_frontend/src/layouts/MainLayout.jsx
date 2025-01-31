@@ -40,7 +40,7 @@ const MainLayout = () => {
         }
       )
     }catch(error){
-      console.log(error);
+      console.log("from MainLayout", error);
     }
     
     
