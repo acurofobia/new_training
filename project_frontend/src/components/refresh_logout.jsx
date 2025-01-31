@@ -8,6 +8,8 @@ const handleLogout = async () => {
     return "/login_requiered";
   } catch (error) {
     console.error("Logout failed", error);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     return "/login";
   }
 };
