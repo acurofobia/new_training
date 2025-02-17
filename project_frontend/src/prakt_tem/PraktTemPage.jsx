@@ -11,6 +11,7 @@ const PraktTemPage = () => {
   let { question_number } = useParams();
   const org = state.org;
   const category = state.category;
+  const type = state.type;
   let mode = 2;
   if (question_number==undefined){
     question_number = state.lastAnswered + 1;
@@ -21,6 +22,20 @@ const PraktTemPage = () => {
   const formRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [buttonLoading, setButtonLoading] = useState(false);
+
+  function shuffle(array) {
+    const newArray = [...array]
+    const length = newArray.length
+  
+    for (let start = 0; start < length; start++) {
+      const randomPosition = Math.floor((newArray.length - start) * Math.random())
+      const randomItem = newArray.splice(randomPosition, 1)
+  
+      newArray.push(...randomItem)
+    }
+  
+    return newArray
+  }
 
   const checkAndSend = (e) => {
     e.preventDefault();
@@ -51,12 +66,11 @@ const PraktTemPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const accessToken = localStorage.getItem('accessToken');
-      protected_fetch(navigate, "GET", `/api/get_question_pt/${org}/${category}/${question_number}`, accessToken).then(
+      protected_fetch(navigate, "GET", `/api/get_question_pt/${org}/${category}/${question_number}/${type}`, accessToken).then(
         function(result) {
           setQuestionData(result.data);
-          console.log(result.data);
           setLoading(false);
-          setAnswered(false);
+          setAnswered(false); // сделать случайный порядок
         },
         function(err) {
           console.log(err, "ERR")
@@ -70,7 +84,7 @@ const PraktTemPage = () => {
 
   return (
     <form ref={formRef} onSubmit={checkAndSend} key={question_number}>
-      <h1>Вопрос № {question_number}</h1>
+      <h1>{type == "prakt" ? "Практическая" : "Тематическая"} задача № {question_number}</h1>
       <h3 key={questionData.question_id}>{questionData["question"]}</h3>
       <ul>
         {questionData.answers.map(answer => {
@@ -82,7 +96,7 @@ const PraktTemPage = () => {
           </li>
         })}
       </ul>
-      <PraktTemQuestionButton answered={answered} question_number={question_number} org={org} category={category} mode={mode} buttonLoading={buttonLoading}></PraktTemQuestionButton>
+      <PraktTemQuestionButton answered={answered} question_number={question_number} org={org} category={category} mode={mode} type={type} buttonLoading={buttonLoading}></PraktTemQuestionButton>
     </form>
 )}
 

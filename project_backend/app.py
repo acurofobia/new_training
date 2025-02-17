@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager, create_access_token, get_jti, get_jwt
 from config import Config
 from models import db, User, Results, LastResult, Questions, Answers, Questions_pt, Answers_pt
 from flask_cors import CORS
+from random import shuffle
 import json
 import datetime
 
@@ -159,11 +160,15 @@ class NumbersOfQuestions(Resource):
     
 class NumbersOfQuestionsPT(Resource):
     def get(self, org, category):
-        questions = Questions_pt.query.filter_by(org=org, category=category).all()
-        numbers = []
-        for question in questions:
-            numbers.append(question.question_number)
-        return {"numbers": numbers}
+        praktQuestions = Questions_pt.query.filter_by(org=org, category=category, type="prakt").all()
+        temQuestions = Questions_pt.query.filter_by(org=org, category=category, type="tem").all()
+        praktNumbers = []
+        temNumbers = []
+        for question in praktQuestions:
+            praktNumbers.append(question.question_number)
+        for question in temQuestions:
+            temNumbers.append(question.question_number)
+        return {"praktNumbers": praktNumbers, "temNumbers": temNumbers}
 
 class Result(Resource):
     @jwt_required()
@@ -213,16 +218,20 @@ class ResultPT(Resource):
     @jwt_required()
     def post(self):
         data = request.get_json()
-        print(data)
         current_user_id = get_jwt_identity()
         user = db.session.get(User, current_user_id)
+        type = Questions_pt.query.filter_by(id=data["question_id"]).first().type
         iteration = check_iterationPT(current_user_id, data["org"], data["category"])
         points = Answers_pt.query.filter_by(id=data["answer_id"]).first().points
-        right_answer = Answers_pt.query.filter_by(question_id=data["question_id"], points=20).first().id
+        if (type == "prakt"):
+            max_points = 20
+        else:
+            max_points = 10
+        right_answer = Answers_pt.query.filter_by(question_id=data["question_id"], points=max_points).first().id
         if (data["mode"] == 2):
             return {"message": "Result not added cuz of mode", "right_answer": right_answer}, 200
-        semi_right_answer = Answers_pt.query.filter_by(question_id=data["question_id"], points=10).first().id
-        results = Results(org=data["org"],
+        semi_right_answer = Answers_pt.query.filter_by(question_id=data["question_id"], points=max_points/2).first().id
+        results = Results(org=data["org"], #Дописать type?
             category=data["category"],
             question_number = data["question_number"],
             question_id = data["question_id"],
@@ -257,13 +266,14 @@ class ResultPT(Resource):
     
 class GetQuestionPT(Resource):
     @jwt_required()
-    def get(self, org, category, question_number):
+    def get(self, org, category, question_number, type):
         try:
-            question = Questions_pt.query.filter_by(org=org, category=category, question_number=question_number, type="prakt").first()
+            question = Questions_pt.query.filter_by(org=org, category=category, question_number=question_number, type=type).first()
             answers = Answers_pt.query.filter_by(question_id=question.id).all()
             answersSerializable = []
             for answer in answers:
                 answersSerializable.append({"id": answer.id, "answer": answer.answer})
+            shuffle(answersSerializable)
             toSend = {"question": question.question, "question_id":question.id, "answers": answersSerializable}
             return toSend, 200
         except:
@@ -301,9 +311,10 @@ class LastQuestionPT(Resource):
                                                     org=org,
                                                     category=category, 
                                                     mode=2).first().results_id
-            return {"last_answered": db.session.get(Results, last_result).question_number}, 200
+            question_id = db.session.get(Results, last_result).question_id
+            return {"last_answered": db.session.get(Results, last_result).question_number, "type": db.session.get(Questions_pt, question_id).type}, 200
         except:
-            return {"last_answered": 0}, 202
+            return {"last_answered": 0, "type": "prakt"}, 202
         
 class FlushIteration(Resource):
     @jwt_required()
@@ -365,12 +376,15 @@ class TestSummaryPT(Resource):
     def get(self, org, category):
         current_user_id = get_jwt_identity()
         current_iteration = getIterationPT(org, category, current_user_id)
-        amountOfQuestions = len(NumbersOfQuestionsPT.get(self, org, category)["numbers"])
+        amountOfPraktQuestions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])
+        amountOfTemQuestions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])
         answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, mode=2).all()
         overallPoints = 0
         for answer in answers:
             overallPoints += answer.points
-        return {"amountOfQuestions": amountOfQuestions*20, "overallPoints": overallPoints}, 200
+        return {"amountOfPraktQuestions": amountOfPraktQuestions, 
+                "amountOfTemQuestions": amountOfTemQuestions,
+                "overallPoints": overallPoints}, 200
     
 class WrongAnswers(Resource):
     @jwt_required()
@@ -385,22 +399,40 @@ class WrongAnswers(Resource):
             numbers.append(answer.question_number)
         return {"numbers": numbers}, 200
 
+def checkTypeOfQuestion(question_id):
+    with app.app_context():
+        return db.session.get(Questions_pt, question_id).type
+
 class WrongAnswersPT(Resource):
     @jwt_required()
     def get(self, org, category):
         current_user_id = get_jwt_identity()
         current_iteration = getIterationPT(org, category, current_user_id)
+        prakt_numbers = []
+        tem_numbers = []
         wrong_answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, points=0, mode=2).all()
-        semi_wrong_answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, points=10, mode=2).all()
-        semi_semi_wrong_answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, points=5, mode=2).all()
-        numbers = []
-        for answer in wrong_answers:
-            numbers.append(answer.question_number)
-        for answer in semi_wrong_answers:
-            numbers.append(answer.question_number)
-        for answer in semi_semi_wrong_answers:
-            numbers.append(answer.question_number)
-        return {"numbers": numbers}, 200
+        for wrong_answer in wrong_answers:
+            question_id = wrong_answer.question_id
+            type = checkTypeOfQuestion(question_id)
+            if (type == "prakt"):
+                prakt_numbers.append(wrong_answer.question_number)
+            if (type == "tem"):
+                tem_numbers.append(wrong_answer.question_number)
+        wrong_answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, points=5, mode=2).all()
+        for wrong_answer in wrong_answers:
+            question_id = wrong_answer.question_id
+            type = checkTypeOfQuestion(question_id)
+            if (type == "prakt"):
+                prakt_numbers.append(wrong_answer.question_number)
+            if (type == "tem"):
+                tem_numbers.append(wrong_answer.question_number)
+        wrong_answers = Results.query.filter_by(org=org, category=category, user_id=current_user_id, iteration=current_iteration, points=10, mode=2).all()
+        for wrong_answer in wrong_answers:
+            question_id = wrong_answer.question_id
+            type = checkTypeOfQuestion(question_id)
+            if (type == "prakt"):
+                prakt_numbers.append(wrong_answer.question_number)
+        return {"prakt_numbers": sorted(prakt_numbers), "tem_numbers": sorted(tem_numbers)}, 200
 
 class UserInfo(Resource):
     @jwt_required()
@@ -417,7 +449,7 @@ class UserInfo(Resource):
 def load_questions():
     with app.app_context():
         for i in range(8):
-            with open(f'src/tests/prakt_tem_reload/FAVT_UL_prakt_{i+1}k.json') as json_file:
+            with open(f'src/tests/prakt_tem_reload/FAVT_UL_tem_{i+1}k.json') as json_file:
                 category = i+1
                 questions = json.load(json_file)
                 questions = questions["questions"]
@@ -430,7 +462,7 @@ def load_questions():
                     
                     db.session.add(question)
                     db.session.commit()
-                    question_id = Questions_pt.query.filter_by(question_number=key["number"], category=category).first().id
+                    question_id = Questions_pt.query.filter_by(question_number=key["number"], category=category, type=key["type"]).first().id
                     for answer in key["options"]:
                         answer_ = Answers_pt(question_id=question_id,
                                             org="favt_ul",
@@ -443,9 +475,30 @@ def load_questions():
 def copy_for_fazt():
     with app.app_context():
         numbersPrakt = [1,2,3,4,5,7,8,9,11,12,13,14,15]
-        numbersTem = [1,2,3]
+        numbersTem = [1,2,4,5,6,7,8,10,11,12,13,14,15,16]
         number = 1
         for category in [1,2,3,4,5,6,7,8]:
+            number = 1
+            for key in numbersTem:
+                finded_question = Questions_pt.query.filter_by(question_number=key, category=1, type="tem").first()
+                question = Questions_pt(question=finded_question.question,
+                                        org="fazt",
+                                        category=category,
+                                        type="tem",
+                                        question_number=number)
+                db.session.add(question)
+                db.session.commit()
+                question_id = Questions_pt.query.filter_by(org="fazt", question_number=number, category=category, type="tem").first().id
+                for answer in Answers_pt.query.filter_by(question_id=finded_question.id).all():
+                    answer_ = Answers_pt(question_id=question_id,
+                                        org="fazt",
+                                        answer=answer.answer,
+                                        points=answer.points)
+                    db.session.add(answer_)
+                    db.session.commit()
+                number += 1
+        for category in [1,2,3,4,5,6,7,8]:
+            number = 1
             for key in numbersPrakt:
                 finded_question = Questions_pt.query.filter_by(question_number=key, category=1, type="prakt").first()
                 question = Questions_pt(question=finded_question.question,
@@ -455,7 +508,7 @@ def copy_for_fazt():
                                         question_number=number)
                 db.session.add(question)
                 db.session.commit()
-                question_id = Questions_pt.query.filter_by(org="fazt", question_number=number, category=category).first().id
+                question_id = Questions_pt.query.filter_by(org="fazt", question_number=number, category=category, type="prakt").first().id
                 for answer in Answers_pt.query.filter_by(question_id=finded_question.id).all():
                     answer_ = Answers_pt(question_id=question_id,
                                         org="fazt",
@@ -474,7 +527,7 @@ api.add_resource(RefreshToken, "/api/refresh")
 api.add_resource(UserInfo, "/api/user_info")
 api.add_resource(Logout, "/api/logout")
 api.add_resource(GetQuestion, "/api/get_question/<string:org>/<string:category>/<string:question_number>")
-api.add_resource(GetQuestionPT, "/api/get_question_pt/<string:org>/<string:category>/<string:question_number>")
+api.add_resource(GetQuestionPT, "/api/get_question_pt/<string:org>/<string:category>/<string:question_number>/<string:type>")
 api.add_resource(NumbersOfQuestions, "/api/numbers_of_questions/<string:org>/<string:category>")
 api.add_resource(NumbersOfQuestionsPT, "/api/numbers_of_questions_pt/<string:org>/<string:category>")
 api.add_resource(WrongAnswers, "/api/wrong_answers/<string:org>/<string:category>")
@@ -522,7 +575,7 @@ if __name__ == "__main__":
     # load_questions_fazt()
     # load_answers_fazt()
     # load_questions()
-    # copy_for_fazt()
+    copy_for_fazt()
     # load_questions('favt_mos')
     # load_questions('favt_ul')
     # load_answers('fda')

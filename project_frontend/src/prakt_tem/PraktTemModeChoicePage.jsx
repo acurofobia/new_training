@@ -1,40 +1,40 @@
 import React from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react';
-import { defineOrg } from '../components/defineOrg';
 import { protected_fetch } from '../components/protected_fetch';
-import ModeQuestions from '../components/ModeQuestions';
 
 const PraktTemModeChoicePage = () => {
   const {category} = useParams();
   const {org} = useParams();
-  const [orgText, setOrgText] = useState("");
   const [loading, setLoading] = useState(true);
   const [finished, setFinished] = useState(false);
-  const [lastAnswered, setLastAnswered] = useState(0);
-  const [barLength, setBarLength] = useState(0);
+  const [lastAnswered, setLastAnswered] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    setOrgText(defineOrg(org));
     const accessToken = localStorage.getItem('accessToken');
     protected_fetch(navigate, "GET",
       `/api/numbers_of_questions_pt/${org}/${category}`,
       accessToken
     ).then(
       function(result){
-        const numbersOfQuestions = result.data.numbers;
+        const praktNumbersOfQuestions = result.data.praktNumbers;
+        const temNumbersOfQuestions = result.data.temNumbers;
         protected_fetch(navigate, "GET",
           `/api/get_last_question_pt/${org}/${category}`,
           accessToken
         ).then(
           function(result){
-            setLastAnswered(result.data.last_answered);
-            const lastQuestion = result.data.last_answered;
-            if (lastQuestion == numbersOfQuestions.length) {
+            
+            setLastAnswered({"lastAnswered": result.data.last_answered, "type": result.data.type})
+            if (result.data.last_answered == praktNumbersOfQuestions.length) {
+              setLastAnswered({"lastAnswered": 0, "type": "tem"})
+            }
+            if (result.data.type == "tem" && result.data.last_answered == temNumbersOfQuestions.length){
               setFinished(true);
             }
             setLoading(false);
+            console.log(lastAnswered);
           }
         )
       }
@@ -57,7 +57,7 @@ const PraktTemModeChoicePage = () => {
           {/* <div style={{width: "100%", height: "15px", background: "grey"}}>
           <div style={{width: `${barLength}%`, height: "100%", background: "lightgreen"}}></div>
           </div> */}
-          <Link to="questions_by_query" className='link_button' state={{org, category, lastAnswered}}>Перейти ко второму этапу</Link>
+          <Link to="questions_by_query" className='link_button' state={{org, category, lastAnswered: lastAnswered.lastAnswered, type:lastAnswered.type}}>Перейти ко второму этапу</Link>
         </div>
       )
     }
