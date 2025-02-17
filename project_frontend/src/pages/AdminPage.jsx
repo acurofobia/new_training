@@ -31,7 +31,7 @@ const AdminPage = () => {
 
   return (
     <div>
-      <h2>Admin Page</h2>
+      <h2>Admin Pagee</h2>
       <button onClick={toggleRegVisibility}>Регистрация</button>
       {regVisible && (
         <RegisterComponent updateTable={fetchData}></RegisterComponent>
