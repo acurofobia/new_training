@@ -75,6 +75,7 @@ const MainLayout = () => {
             <p>Права: <strong>{userData.rights}</strong></p>
             <p>Организация СОТБ: <strong>{userData.allowed_org.join(", ")}</strong></p>
             <p>Разрешенные категории: <strong>{userData.allowed_categories.join(", ")}</strong></p>
+            <p>Версия приложения: <strong>0.1.1</strong></p>
             <button onClick={exit}>Выйти</button>
           </div>
         )}
