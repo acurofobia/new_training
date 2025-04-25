@@ -16,7 +16,7 @@ class User(db.Model):
     doc_number = db.Column(db.String(256), nullable=True)
     org = db.Column(db.String(256), nullable=True)
     rights = db.Column(db.Integer)
-    randomQuestions = db.Column(JSON, nullable=True)
+    # randomQuestions = db.Column(JSON, nullable=True)
 
     # def __repr__(self):
     #     return f"<user {self.id}>"
