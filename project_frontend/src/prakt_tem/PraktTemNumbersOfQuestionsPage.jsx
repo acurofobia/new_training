@@ -54,8 +54,8 @@ const PraktTemNumbersOfQuestionsPage = () => {
       </ul>
       <p>Если Вы допустили много ошибок и поработали над ними, можете закрепить свои знания повторным прохождением первого этапа нажав кнопку "Новая итерация"</p>
       <button onClick={newIteration} className='link_button'>Новая итерация</button>
-      <p>Если Вас устраивает результат, полученный на втором этапе, можете перходить ко третьему, нажав кнопку "Перейти к третьему этапу"</p>
-      <Link state={{org: org, category: category}} className='link_button'>Перейти к третьему этапу</Link>
+      {/* <p>Если Вас устраивает результат, полученный на втором этапе, можете перходить ко третьему, нажав кнопку "Перейти к третьему этапу"</p>
+      <Link to={"../../mode_third"} relative="path" state={{org: org, category: category}} className='link_button'>Перейти к третьему этапу</Link> */}
     </div>
    
   )

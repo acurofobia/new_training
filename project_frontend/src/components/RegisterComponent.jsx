@@ -2,9 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 
 const RegisterComponent = ({updateTable}) => {
-  const [formData, setFormData] = useState()
-
-
+  
   const onSubmit = (event) => {
     event.preventDefault();
     let formData = new FormData(event.target);
@@ -44,10 +42,10 @@ const RegisterComponent = ({updateTable}) => {
           event.target.reset();
         }
       )
+      console.log(toSend)
     } catch (err) {
       console.log('User already exists or error in registration');
     }
-    
   }
 
   return (
@@ -80,8 +78,11 @@ const RegisterComponent = ({updateTable}) => {
           <input type="checkbox" id="favt_ul" name="favt_ul_org" />
           <label htmlFor="favt_ul">ФАВТ Ульяновск</label>
         </div>
+        <div>
+          <input type="checkbox" id="famrt" name="famrt_org" />
+          <label htmlFor="famrt">ФАМРТ</label>
+        </div>
       </fieldset>
-      {/* <label htmlFor="allowed_categories">Категории</label> */}
       <fieldset>
         <legend>Выберите категории:</legend>
         {["1", "2", "3", "4", "5", "6", "7", "8"].map(number => {

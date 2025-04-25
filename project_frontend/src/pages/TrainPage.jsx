@@ -32,6 +32,9 @@ const TrainPage = () => {
           <li>
             <Link className={checkClass("fazt")} to="/train/fazt/categories">ФАЖТ</Link>
           </li>
+          <li>
+            <Link className={checkClass("famrt")} to="/train/famrt/categories">ФАМРТ</Link>
+          </li>
         </ul>
       </nav>
     </div>

@@ -13,5 +13,5 @@ class Config:
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = 'r64yfh5tg'
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=10)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=10)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)

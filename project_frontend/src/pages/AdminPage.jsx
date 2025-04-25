@@ -2,15 +2,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import UsersTable from '../components/usersTable';
 import RegisterComponent from '../components/RegisterComponent';
+import ChangeComponent from '../components/ChangeComponent';
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [regVisible, setRegVisible] = useState(false);
+  const [activeUserId, setActiveUserId] = useState(null);
 
   const toggleRegVisibility = (setState) => {
     setRegVisible(!regVisible);
+  };
+  const handleToggle = (id) => {
+    setActiveUserId(prev => (prev === id ? null : id));
   };
   const fetchData  = async () => {
     try {
@@ -36,13 +40,17 @@ const AdminPage = () => {
       {regVisible && (
         <RegisterComponent updateTable={fetchData}></RegisterComponent>
       )}
-      {/* <Link className='link_button' to="/register">Регистрация</Link> */}
-      {users.map(user => {
-        return <p key={user.id}>id - {user.id} username - {user.username}</p>
+      {users.map((user, index) => {
+        return <div>
+            <p key={user.id}>id - {user.id} username - {user.username}</p>
+            <button onClick={() => handleToggle(user.id)}>Изменить</button>
+            {activeUserId === user.id && (
+              <ChangeComponent updateTable={fetchData} user={user} visible />
+            )}
+          </div>
       })}
-      <UsersTable></UsersTable>
-      <button onClick={() => onClick()}>1</button>
-      
+      {/* <UsersTable></UsersTable> */}
+      {/* <button onClick={() => onClick()}>1</button> */}
     </div>
   );
 };

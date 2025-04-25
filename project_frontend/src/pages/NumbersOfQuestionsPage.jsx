@@ -42,8 +42,13 @@ const TestsComponent = () => {
       </ul>
       <p>Если Вы допустили много ошибок и поработали над ними, можете закрепить свои знания повторным прохождением первого этапа нажав кнопку "Новая итерация"</p>
       <button onClick={newIteration} className='link_button'>Новая итерация</button>
-      <p>Если Вас устраивает результат, полученный на первом этапе, можете перходить ко второму, нажав кнопку "Перейти ко второму этапу"</p>
-      <Link to={`/train/${org}/categories/${category}/mode_pt`} state={{org: org, category: category}} className='link_button'>Перейти ко второму этапу</Link>
+      {org == "famrt" ? "" : 
+        <>
+          <p>Если Вас устраивает результат, полученный на первом этапе, можете перходить ко второму, нажав кнопку "Перейти ко второму этапу"</p>
+          <Link to={`/train/${org}/categories/${category}/mode_pt`} state={{org: org, category: category}} className='link_button'>Перейти ко второму этапу</Link>
+        </>
+      }
+      
     </div>
    
   )

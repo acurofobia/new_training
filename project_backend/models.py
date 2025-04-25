@@ -16,6 +16,7 @@ class User(db.Model):
     doc_number = db.Column(db.String(256), nullable=True)
     org = db.Column(db.String(256), nullable=True)
     rights = db.Column(db.Integer)
+    randomQuestions = db.Column(JSON, nullable=True)
 
     # def __repr__(self):
     #     return f"<user {self.id}>"
@@ -34,12 +35,14 @@ class Results(db.Model):
     question_id = db.Column(db.Integer)
     answer_id = db.Column(db.Integer)
     iteration = db.Column(db.Integer)
-    mode = db.Column(db.Integer) 
+    mode = db.Column(db.Integer)
+    type = db.Column(db.String(256), nullable=True)
     points = db.Column(db.Integer)
     datetime = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # uhuh = db.Column(db.Integer)
 
-class ResultsEnd(db.Model):
+class RandomQuestions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     org = db.Column(db.String(100), nullable=False)
     category = db.Column(db.Integer)

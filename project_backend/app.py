@@ -8,61 +8,43 @@ from flask_cors import CORS
 from random import shuffle
 import json
 import datetime
+import random
+from flask_migrate import Migrate
+
 
 app = Flask(__name__, static_folder='../build', static_url_path='/')
 app.config.from_object(Config)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['JWT_VERIFY_SUB'] = False
-# app.config['DEBUG'] = True
+app.config['DEBUG'] = True
+migrate = Migrate(app, db)
 
 db.init_app(app)
 api = Api(app)
 jwt = JWTManager(app)
 # CORS(app)
 
-def check_iteration(user_id, org, category):
+def check_iteration(user_id, org, category, mode):
     last_result = LastResult.query.filter_by(org=org,
                                              category=category,
                                              user_id=user_id,
-                                             mode=1).first()
+                                             mode=mode).first()
     result = Results.query.filter_by(org=org,
                                      category=category,
                                      user_id=user_id,
-                                     mode=1).all()
+                                     mode=mode).all()
     if not result: #Первый раз?
         return 1
     if not last_result: #Если сбросили
         iteration = Results.query.filter_by(org=org,
                                             category=category,
                                             user_id=user_id,
-                                            mode=1).order_by(Results.iteration.desc()).first().iteration
+                                            mode=mode).order_by(Results.iteration.desc()).first().iteration
         return iteration + 1
     return LastResult.query.filter_by(org=org,
                                    category=category,
                                    user_id=user_id,
-                                   mode=1).first().iteration
-
-def check_iterationPT(user_id, org, category):
-    last_result = LastResult.query.filter_by(org=org,
-                                             category=category,
-                                             user_id=user_id,
-                                             mode=2).first()
-    result = Results.query.filter_by(org=org,
-                                     category=category,
-                                     user_id=user_id,
-                                     mode=2).all()
-    if not result: #Первый раз?
-        return 1
-    if not last_result: #Если сбросили
-        iteration = Results.query.filter_by(org=org,
-                                            category=category,
-                                            user_id=user_id,
-                                            mode=2).order_by(Results.iteration.desc()).first().iteration
-        return iteration + 1
-    return LastResult.query.filter_by(org=org,
-                                   category=category,
-                                   user_id=user_id,
-                                   mode=2).first().iteration
+                                   mode=mode).first().iteration
 
 # Регистрация
 class Register(Resource):
@@ -87,6 +69,20 @@ class Register(Resource):
         db.session.add(new_user)
         db.session.commit()
         return {"message": "User created successfully"}, 200
+    
+class ChangeUser(Resource):
+    @jwt_required()
+    def patch(self):
+        data = request.get_json()
+        user = User.query.get(data["id"])
+        for key, value in data.items():
+            if (getattr(user, key, None) != value and key != "password"):
+                setattr(user, key, value)
+            if (key == "password" and value != ""):
+                user.set_password(value)
+                user.refresh_token = ""
+        db.session.commit()
+        return {"message": "User changed successfully"}, 200
 
 # Вход
 class Login(Resource):
@@ -176,7 +172,7 @@ class Result(Resource):
         data = request.get_json()
         current_user_id = get_jwt_identity()
         user = db.session.get(User, current_user_id)
-        iteration = check_iteration(current_user_id, data["org"], data["category"])
+        iteration = check_iteration(current_user_id, data["org"], data["category"], mode=1)
         points = Answers.query.filter_by(id=data["answer_id"]).first().points
         right_answer = Answers.query.filter_by(question_id=data["question_id"], points=1).first().id
         if (data["mode"] == "all_questions"):
@@ -221,7 +217,7 @@ class ResultPT(Resource):
         current_user_id = get_jwt_identity()
         user = db.session.get(User, current_user_id)
         type = Questions_pt.query.filter_by(id=data["question_id"]).first().type
-        iteration = check_iterationPT(current_user_id, data["org"], data["category"])
+        iteration = check_iteration(current_user_id, data["org"], data["category"], mode=2)
         points = Answers_pt.query.filter_by(id=data["answer_id"]).first().points
         if (type == "prakt"):
             max_points = 20
@@ -264,6 +260,51 @@ class ResultPT(Resource):
         
         return {"message": "Result added successfully", "right_answer": right_answer, "semi_right_answer": semi_right_answer}, 200
     
+class ResultRandom(Resource):
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        current_user_id = get_jwt_identity()
+        user = db.session.get(User, current_user_id)
+        iteration = check_iteration(current_user_id, data["org"], data["category"], mode=data["mode"])
+        if (data["type"] == "test"):
+            points = Answers.query.filter_by(id=data["answer_id"]).first().points
+        else:
+            points = Answers_pt.query.filter_by(id=data["answer_id"]).first().points
+        results = Results(org=data["org"],
+            category=data["category"],
+            question_number = data["question_number"],
+            question_id = data["question_id"],
+            answer_id = data["answer_id"],
+            type = data["type"],
+            mode=data["mode"],
+            iteration = iteration,
+            points = points,
+            datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            user_id=user.id)
+        db.session.add(results)
+        db.session.commit()
+        result_id = Results.query.order_by(Results.id.desc()).first().id
+        last_result = LastResult.query.filter_by(org=data["org"], 
+                                                 category=data["category"],
+                                                 user_id=user.id,
+                                                 mode=data["mode"]).first()
+        if last_result:
+            last_result.results_id = result_id
+            last_result.iteration = iteration
+            db.session.commit()
+        else :
+            last_result = LastResult(user_id=user.id, 
+                                     results_id=result_id, 
+                                     org=data["org"],
+                                     mode=data["mode"],
+                                     iteration=iteration,
+                                     category=data["category"])
+            db.session.add(last_result)
+            db.session.commit()
+        
+        return {"message": "Result added successfully"}, 200
+
 class GetQuestionPT(Resource):
     @jwt_required()
     def get(self, org, category, question_number, type):
@@ -285,8 +326,17 @@ class Users(Resource):
         users = User.query.all()
         response = []
         for user in users:
-           response.append({"id": user.id, "username": user.username})
+           response.append({"id": user.id, 
+                            "username": user.username,
+                            "allowed_org": user.allowed_org,
+                            "allowed_categories": user.allowed_categories,
+                            "full_name": user.full_name,
+                            "doc_number": user.doc_number,
+                            "org": user.org,
+                            "rights": user.rights
+                            })
         return response, 200
+
 
 class LastQuestion(Resource):
     @jwt_required()
@@ -446,6 +496,34 @@ class UserInfo(Resource):
                 "allowed_org": user_info.allowed_org,
                 "allowed_categories": user_info.allowed_categories}, 200
 
+class GenerateQuestions(Resource):
+    @jwt_required()
+    def get(self, org, category):
+        current_user_id = get_jwt_identity()
+        user = db.session.get(User, current_user_id)
+        
+        amountOfTestQuestions = len(NumbersOfQuestions.get(self, org, category)["numbers"])
+        amountOfPraktQuestions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])
+        amountOfTemQuestions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])
+        randomTestQuestions = ", ".join(map(str, random_sorted_list(1, amountOfTestQuestions, 50)))
+        randomPraktQuestions = ", ".join(map(str, random_sorted_list(1, amountOfPraktQuestions, 2)))
+        randomTemQuestions = ", ".join(map(str, random_sorted_list(1, amountOfTemQuestions, 3)))
+        user.randomQuestions = {"randomTestQuestions": randomTestQuestions, "randomPraktQuestions": randomPraktQuestions, "randomTemQuestions": randomTemQuestions}
+        db.session.commit()
+        return {"randomTestQuestions": randomTestQuestions, "randomPraktQuestions": randomPraktQuestions, "randomTemQuestions": randomTemQuestions}, 200
+
+
+
+def random_sorted_list(start, end, length):
+    """Создает случайный список уникальных чисел в заданном диапазоне, а затем сортирует его."""
+    if length > (end - start + 1):
+        raise ValueError("Длина списка не может превышать диапазон чисел")
+
+    numbers = list(range(start, end + 1))  # Создаём последовательность чисел
+    random.shuffle(numbers)  # Перемешиваем
+    return sorted(numbers[:length])  # Берём первые length элементов и сортируем
+
+
 def load_questions():
     with app.app_context():
         for i in range(8):
@@ -521,6 +599,7 @@ def copy_for_fazt():
 
 
 api.add_resource(Register, "/api/register")
+api.add_resource(ChangeUser, "/api/change")
 api.add_resource(Login, "/api/login")
 api.add_resource(ProtectedResource, "/api/protected")
 api.add_resource(RefreshToken, "/api/refresh")
@@ -541,46 +620,48 @@ api.add_resource(FlushIteration, "/api/flush_iteration/<string:org>/<string:cate
 api.add_resource(FlushIterationPT, "/api/flush_iteration_pt/<string:org>/<string:category>")
 api.add_resource(TestSummary, "/api/test_summary/<string:org>/<string:category>")
 api.add_resource(TestSummaryPT, "/api/test_summary_pt/<string:org>/<string:category>")
+api.add_resource(GenerateQuestions, "/api/generate/<string:org>/<string:category>")
 
 with app.app_context():
         # db.drop_all()
         db.create_all()
-        if not User.query.filter_by(username="admin").first():
-            new_user = User(username="admin",
-                            full_name="admin admin admin",
-                            org="ZT",
-                            allowed_org=["fda", "fazt", "favt_ul", "favt_mos"],
-                            allowed_categories=["1", "2", "3", "4", "5", "6", "7", "8"],
-                            rights=1)
-            new_user.set_password("admin1")
-            db.session.add(new_user)
-            db.session.commit()
+        # if not User.query.filter_by(username="admin").first():
+        #     new_user = User(username="admin",
+        #                     full_name="admin admin admin",
+        #                     org="ZT",
+        #                     allowed_org=["fda", "fazt", "favt_ul", "favt_mos"],
+        #                     allowed_categories=["1", "2", "3", "4", "5", "6", "7", "8"],
+        #                     rights=1)
+        #     new_user.set_password("admin1")
+        #     db.session.add(new_user)
+        #     db.session.commit()
 
 if __name__ == "__main__":
     with app.app_context():
         # db.drop_all(bind_key='questions')
         # db.drop_all(bind_key='prakt_tem')
         # db.drop_all(bind_key=None)
+        
         db.create_all()
-        if not User.query.filter_by(username="admin").first():
-            new_user = User(username="admin",
-                            full_name="admin admin admin",
-                            org="ZT",
-                            allowed_org=["fda", "fazt", "favt_ul", "favt_mos"],
-                            allowed_categories=["1", "2", "3", "4", "5", "6", "7", "8"],
-                            rights=1)
-            new_user.set_password("admin1")
-            db.session.add(new_user)
-            db.session.commit()
+        # if not User.query.filter_by(username="admin").first():
+        #     new_user = User(username="admin",
+        #                     full_name="admin admin admin",
+        #                     org="ZT",
+        #                     allowed_org=["fda", "fazt", "favt_ul", "favt_mos"],
+        #                     allowed_categories=["1", "2", "3", "4", "5", "6", "7", "8"],
+        #                     rights=1)
+        #     new_user.set_password("admin1")
+        #     db.session.add(new_user)
+        #     db.session.commit()
     # load_questions_fazt()
     # load_answers_fazt()
     # load_questions()
-    copy_for_fazt()
+    # copy_for_fazt()
     # load_questions('favt_mos')
     # load_questions('favt_ul')
     # load_answers('fda')
     # load_answers('favt_mos')
     # load_answers('favt_ul')
     # fix_answers('fda')
-    # app.run(debug=True, host="0.0.0.0")
-    app.run(host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0")
+    # app.run(host="0.0.0.0")

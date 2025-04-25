@@ -19,6 +19,8 @@ import PraktTemPage from './prakt_tem/PraktTemPage';
 import PraktTemModeChoicePage from './prakt_tem/PraktTemModeChoicePage';
 import PraktTemEndQuestionPage from './prakt_tem/PraktTemEndQuestionPage';
 import PraktTemNumbersOfQuestionsPage from './prakt_tem/PraktTemNumbersOfQuestionsPage';
+import ThirdModeChoicePage from './3/ThirdModeChoicePage';
+import ThirdPage from './3/ThirdPage';
 
 const App = () => {
   const [auth, setAuth] = useState(false);
@@ -48,6 +50,8 @@ const App = () => {
           <Route path="train/:org/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>}></ Route>
           <Route path="train/:org/categories/:category/mode" element={<ProtectedRoute><ModeChoicePage /></ProtectedRoute>} />
           <Route path="train/:org/categories/:category/mode_pt" element={<ProtectedRoute><PraktTemModeChoicePage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode_third" element={<ProtectedRoute><ThirdModeChoicePage /></ProtectedRoute>} />
+          <Route path="train/:org/categories/:category/mode_third/questions_by_query/:type/:question_number_url" element={<ProtectedRoute><ThirdPage/></ProtectedRoute>} />
           <Route path="train/:org/categories/:category/mode/all_questions" element={<ProtectedRoute><NumbersOfQuestionsPage /></ProtectedRoute>} />
           <Route path="train/:org/categories/:category/mode/all_questions_pt" element={<ProtectedRoute><PraktTemNumbersOfQuestionsPage /></ProtectedRoute>} />
           <Route path="train/:org/categories/:category/mode/all_questions/:question_number" element={<ProtectedRoute><QuestionPage mode="all_questions" /></ProtectedRoute>} />
