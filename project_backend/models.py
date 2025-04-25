@@ -36,7 +36,7 @@ class Results(db.Model):
     answer_id = db.Column(db.Integer)
     iteration = db.Column(db.Integer)
     mode = db.Column(db.Integer)
-    type = db.Column(db.String(256), nullable=True)
+    # type = db.Column(db.String(256), nullable=True)
     points = db.Column(db.Integer)
     datetime = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
