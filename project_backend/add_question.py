@@ -3,16 +3,17 @@ from models import Questions, Answers
 import json
 
 with app.app_context():  # Для работы с контекстом приложения
-    with open(f'src/tests/first/3famrt.json') as json_file:
+    with open(f'src/tests/first/7famrt.json') as json_file:
         questions = json.load(json_file)
         for key in questions:
             question = Questions(question=key["question"],
                                  org="famrt",
-                                 category=3,
+                                 category=7,
                                  question_number=key["question_number"])
             db.session.add(question)
             db.session.commit()
-            question_id = Questions.query.filter_by(question_number=key["question_number"], category=3, org="famrt").first().id
+            question_id = Questions.query.filter_by(question_number=key["question_number"], category=7, org="famrt").first().id
+            print(key["question_number"])
             right_answer = key["correct_index"]+1
             index = 1
             for answer in key["answers"]:
