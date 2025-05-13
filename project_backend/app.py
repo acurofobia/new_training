@@ -22,7 +22,7 @@ app.config['DEBUG'] = True
 db.init_app(app)
 api = Api(app)
 jwt = JWTManager(app)
-# CORS(app)
+CORS(app)
 
 def check_iteration(user_id, org, category, mode):
     last_result = LastResult.query.filter_by(org=org,
@@ -518,10 +518,13 @@ class GenerateResult(Resource):
         user = db.session.get(User, id)
         org = user.allowed_org[0]
         results = []
-        last_iteration_test = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=1).order_by(Results.iteration.desc()).first().iteration
-        last_iteration_prakt_tem = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=1).order_by(Results.iteration.desc()).first().iteration
+        try:
+            last_iteration_test = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=1).order_by(Results.iteration.desc()).first().iteration
+        except:
+            return {}, 204
+        # last_iteration_prakt_tem = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=1).order_by(Results.iteration.desc()).first().iteration
         iterations_test = list(range(1, last_iteration_test + 1))
-        iterations_prakt_tem = list(range(1, last_iteration_prakt_tem + 1))
+        # iterations_prakt_tem = list(range(1, last_iteration_prakt_tem + 1))
         for iteration in iterations_test:
             test_overall = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1).count()
             test_passed = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1, points=1).count()
@@ -529,17 +532,17 @@ class GenerateResult(Resource):
             beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1).order_by(Results.datetime.asc()).first().datetime
             end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1).order_by(Results.datetime.desc()).first().datetime
             results.append({"mode": 1, "iteration": iteration, "test_overall": test_overall, "test_passed": test_passed, "percent": percent, "beginning_time": beginning_time, "end_time": end_time})
-        for iteration in iterations_prakt_tem:
-            amount_of_prakt_questions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])*20
-            amount_of_tem_questions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])*10
-            test_overall = amount_of_prakt_questions+amount_of_tem_questions
-            answers = Results.query.filter_by(org=org, category=category, user_id=user.id, iteration=iteration, mode=2).all()
-            beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.asc()).first().datetime
-            end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.desc()).first().datetime
-            points = 0
-            for answer in answers:
-                points += answer.points
-            results.append({"mode": 2, "iteration": iteration, "test_overall": test_overall, "test_passed": points, "percent": test_overall/points*100, "beginning_time": beginning_time, "end_time": end_time})
+        # for iteration in iterations_prakt_tem:
+        #     amount_of_prakt_questions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])*20
+        #     amount_of_tem_questions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])*10
+        #     test_overall = amount_of_prakt_questions+amount_of_tem_questions
+        #     answers = Results.query.filter_by(org=org, category=category, user_id=user.id, iteration=iteration, mode=2).all()
+        #     beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.asc()).first().datetime
+        #     end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.desc()).first().datetime
+        #     points = 0
+        #     for answer in answers:
+        #         points += answer.points
+        #     results.append({"mode": 2, "iteration": iteration, "test_overall": test_overall, "test_passed": points, "percent": test_overall/points*100, "beginning_time": beginning_time, "end_time": end_time})
         toSend = {
             "username": user.username,
             "full_name": user.full_name,
