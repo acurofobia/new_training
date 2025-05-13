@@ -2,3 +2,4 @@
 /project_frontend/node_modules
 /project_backend/__pycache__
 /project_backend/instance/users.db
+/project_backend/myenv
