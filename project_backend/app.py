@@ -518,6 +518,7 @@ class GenerateResult(Resource):
         user = db.session.get(User, id)
         org = user.allowed_org[0]
         results = []
+        results_pt = []
         try:
             last_iteration_test = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=1).order_by(Results.iteration.desc()).first().iteration
         except:
@@ -532,24 +533,31 @@ class GenerateResult(Resource):
             beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1).order_by(Results.datetime.asc()).first().datetime
             end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=1).order_by(Results.datetime.desc()).first().datetime
             results.append({"mode": 1, "iteration": iteration, "test_overall": test_overall, "test_passed": test_passed, "percent": percent, "beginning_time": beginning_time, "end_time": end_time})
-        # for iteration in iterations_prakt_tem:
-        #     amount_of_prakt_questions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])*20
-        #     amount_of_tem_questions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])*10
-        #     test_overall = amount_of_prakt_questions+amount_of_tem_questions
-        #     answers = Results.query.filter_by(org=org, category=category, user_id=user.id, iteration=iteration, mode=2).all()
-        #     beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.asc()).first().datetime
-        #     end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.desc()).first().datetime
-        #     points = 0
-        #     for answer in answers:
-        #         points += answer.points
-        #     results.append({"mode": 2, "iteration": iteration, "test_overall": test_overall, "test_passed": points, "percent": test_overall/points*100, "beginning_time": beginning_time, "end_time": end_time})
+        try:
+            last_iteration_pt = Results.query.filter_by(org=org, category=category, user_id=user.id, mode=2).order_by(Results.iteration.desc()).first().iteration
+            iterations_pt = list(range(1, last_iteration_pt + 1))
+            for iteration in iterations_pt:
+                amount_of_prakt_questions = len(NumbersOfQuestionsPT.get(self, org, category)["praktNumbers"])*20
+                amount_of_tem_questions = len(NumbersOfQuestionsPT.get(self, org, category)["temNumbers"])*10
+                test_overall = amount_of_prakt_questions+amount_of_tem_questions
+                answers = Results.query.filter_by(org=org, category=category, user_id=user.id, iteration=iteration, mode=2).all()
+                beginning_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.asc()).first().datetime
+                end_time = Results.query.filter_by(user_id=user.id, org=org, category=category, iteration=iteration, mode=2).order_by(Results.datetime.desc()).first().datetime
+                points = 0
+                for answer in answers:
+                    points += answer.points
+                results_pt.append({"mode": 2, "iteration": iteration, "test_overall": test_overall, "test_passed": points, "percent": points/test_overall*100, "beginning_time": beginning_time, "end_time": end_time})
+        except:
+            results_pt = []
+        
         toSend = {
             "username": user.username,
             "full_name": user.full_name,
             "org": user.org,
             "allowed_org": user.allowed_org,
             "allowed_categories": user.allowed_categories,
-            "results": results
+            "results": results,
+            "results_pt": results_pt
         }
         return toSend, 200
 

@@ -51,6 +51,31 @@ const TableComponent = ({ userId, category }) => {
           ))}
         </tbody>
       </table>
+      <h3>Практика, тематика</h3>
+      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', marginTop: '1rem' }}>
+        <thead>
+          <tr>
+            <th>Итерация</th>
+            <th>Всего вопросов</th>
+            <th>Правильно</th>
+            <th>Процент</th>
+            <th>Начало</th>
+            <th>Конец</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.results_pt.map((result, idx) => (
+            <tr key={idx}>
+              <td>{result.iteration}</td>
+              <td>{result.test_overall}</td>
+              <td>{result.test_passed}</td>
+              <td>{result.percent.toFixed(2)}%</td>
+              <td>{result.beginning_time}</td>
+              <td>{result.end_time}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
