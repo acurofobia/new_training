@@ -4,10 +4,10 @@ import json
 
 category = 1
 org = "fda"
-type = "prakt"
+type = "tem"
 
 with app.app_context():  # Для работы с контекстом приложения
-    with open(f'src/tests/second/FDA_prakt_1k.json') as json_file:
+    with open(f'src/tests/second/FDA_tem_1k.json') as json_file:
         questions = json.load(json_file)
         for key in questions["questions"]:
             question = Questions_pt(question=key["question"],
@@ -17,7 +17,7 @@ with app.app_context():  # Для работы с контекстом прил�
                                  question_number=key["number"])
             db.session.add(question)
             db.session.commit()
-            question_id = Questions_pt.query.filter_by(question_number=key["number"], category=category, org=org).first().id
+            question_id = Questions_pt.query.filter_by(question_number=key["number"], category=category, org=org, type=type).first().id
             print(key["number"])
             for answer in key["options"]:                        
                         answer_ = Answers_pt(question_id=question_id,
