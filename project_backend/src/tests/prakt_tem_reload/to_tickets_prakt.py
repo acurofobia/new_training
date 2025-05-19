@@ -1,5 +1,5 @@
 import json
-category = 8
+category = 1
 with open(f'FAVT_UL_prakt_{category}k.json') as json_file:
     file = json.load(json_file)
     questions = file["questions"]
