@@ -2,12 +2,12 @@ from app import app, db
 from models import Questions_pt, Answers_pt
 import json
 
-category = 1
+category = 2
 org = "fda"
 type = "tem"
 
 with app.app_context():  # Для работы с контекстом приложения
-    with open(f'src/tests/second/FDA_tem_1k.json') as json_file:
+    with open(f'src/tests/second/FDA_tem_2k.json') as json_file:
         questions = json.load(json_file)
         for key in questions["questions"]:
             question = Questions_pt(question=key["question"],
