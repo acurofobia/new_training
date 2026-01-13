@@ -9,7 +9,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     volumes:
-      - db_data:/app/instance
+      - ./data:/app/instance
     networks:
       - app_network
     expose:
@@ -48,8 +48,6 @@ networks:
     driver: bridge
 
 volumes:
-  db_data:
-    name: app_db_data
   frontend_dist:
   caddy_data:
   caddy_config:
