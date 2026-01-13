@@ -1,0 +1,22 @@
+# Development overrides - автоматически подхватывается docker compose
+services:
+  backend:
+    build:
+      context: ./project_backend
+    volumes:
+      - ./project_backend:/app
+      - db_data:/app/instance
+    environment:
+      - FLASK_DEBUG=1
+    command: ["python", "app.py"]
+
+  frontend:
+    build:
+      context: ./project_frontend
+      target: builder
+    volumes:
+      - ./project_frontend:/app
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+    ports:
+      - "5173:5173"
