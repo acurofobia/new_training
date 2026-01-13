@@ -1,5 +1,34 @@
-.venv
-/project_frontend/node_modules
-/project_backend/__pycache__
-/project_backend/instance/users.db
-/project_backend/myenv
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+myenv/
+.mypy_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+
+# Database
+*.db
+/project_backend/instance/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.env
+
+# Logs and debug
+*.log
+debug.txt

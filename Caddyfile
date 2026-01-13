@@ -1,0 +1,18 @@
+{$DOMAIN:localhost} {
+    # API requests go to backend
+    handle /api/* {
+        reverse_proxy backend:5000
+    }
+
+    # Everything else served from frontend build
+    handle {
+        root * /srv/frontend
+        try_files {path} /index.html
+        file_server
+    }
+
+    # Logging
+    log {
+        output stdout
+    }
+}

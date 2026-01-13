@@ -12,6 +12,6 @@ class Config:
         'prakt_tem': 'sqlite:///prakt_tem.db'
     }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = 'r64yfh5tg'
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "r64yfh5tg")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=10)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)

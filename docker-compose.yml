@@ -1,0 +1,53 @@
+services:
+  backend:
+    build:
+      context: ./project_backend
+      dockerfile: Dockerfile
+    container_name: app_backend
+    restart: unless-stopped
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    volumes:
+      - db_data:/app/instance
+    networks:
+      - app_network
+    expose:
+      - "5000"
+
+  frontend:
+    build:
+      context: ./project_frontend
+      dockerfile: Dockerfile
+    container_name: app_frontend
+    volumes:
+      - frontend_dist:/app/dist
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: app_caddy
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - frontend_dist:/srv/frontend:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app_network
+    depends_on:
+      - backend
+      - frontend
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    name: app_db_data
+  frontend_dist:
+  caddy_data:
+  caddy_config:
