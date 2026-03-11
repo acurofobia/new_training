@@ -27,7 +27,7 @@ const PraktTemModeChoicePage = () => {
           function(result){
             
             setLastAnswered({"lastAnswered": result.data.last_answered, "type": result.data.type})
-            if (result.data.last_answered == praktNumbersOfQuestions.length) {
+            if (result.data.last_answered >= praktNumbersOfQuestions.length) {
               setLastAnswered({"lastAnswered": 0, "type": "tem"})
             }
             if (result.data.type == "tem" && result.data.last_answered == temNumbersOfQuestions.length){
