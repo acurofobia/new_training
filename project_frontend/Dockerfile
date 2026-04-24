@@ -14,14 +14,11 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - just copy built files
+# Production stage - copy built files and push to volume on startup
 FROM alpine:latest
 
 WORKDIR /app
 
-# Copy built files from builder
-COPY --from=builder /app/dist /app/dist
+COPY --from=builder /app/dist /app/dist_src
 
-# This image is used just to hold the built files
-# Caddy will serve them via volume mount
-CMD ["echo", "Frontend build complete. Files are in /app/dist"]
+CMD ["sh", "-c", "cp -r /app/dist_src/. /app/dist/ && echo 'Frontend files copied to volume'"]
