@@ -84,6 +84,24 @@ ul {
   transition: 0.2s;
 }
 
+.notice-box {
+  border: 2px solid #c0852a;
+  background-color: #fff8e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #5a3e00;
+}
+
+.notice-box strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+  color: #7a4f00;
+}
+
 .spinner-wrapper {
   position: fixed;
   top: 0;

@@ -9,6 +9,10 @@ const HomePage = () => {
 
   return (
     <div>
+      <div className="notice-box">
+        <strong>Внимание!</strong>
+        Начался процесс замены вопросов ФАЖТ. На данный момент заменены 1 и 2 категории. Просьба ознакомиться с новыми вопросами.
+      </div>
       <nav>
         <ul className='ul'>
           <li>
