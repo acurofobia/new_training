@@ -1,14 +1,23 @@
 import sqlite3
 import os
+import shutil
 import openpyxl
+from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'instance', 'questions.db')
 XLSX_DIR = os.path.dirname(BASE_DIR)
 
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+NEW_DB_PATH = os.path.join(BASE_DIR, 'instance', f'questions_{timestamp}.db')
+
 FILES = [
-    ('Категория_1_250.xlsx', 1),
-    ('Категория_2_250.xlsx', 2),
+    ('Категория_3_250.xlsx', 3),
+    ('Категория_4_250.xlsx', 4),
+    ('Категория_5_250.xlsx', 5),
+    ('Категория_6_250.xlsx', 6),
+    ('Категория_7_250.xlsx', 7),
+    ('Категория_8_250.xlsx', 8),
 ]
 
 ANSWER_MARKER = '►'
@@ -84,7 +93,7 @@ def validate(questions, filename):
 
 
 def import_to_db(questions, org, category):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(NEW_DB_PATH)
     cur = conn.cursor()
 
     cur.execute(
@@ -110,6 +119,9 @@ def import_to_db(questions, org, category):
 
 
 def main():
+    print(f"Копирование БД: {DB_PATH} → {NEW_DB_PATH}")
+    shutil.copy2(DB_PATH, NEW_DB_PATH)
+
     for filename, category in FILES:
         filepath = os.path.join(XLSX_DIR, filename)
         print(f"\nОбработка {filename} (fazt, категория {category})...")
@@ -127,9 +139,9 @@ def main():
         print(f"  Импорт завершён")
 
     print("\n=== Проверка БД ===")
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(NEW_DB_PATH)
     cur = conn.cursor()
-    for category in [1, 2]:
+    for category in [3, 4, 5, 6, 7, 8]:
         count_q = cur.execute("SELECT count(*) FROM questions WHERE org='fazt' AND category=?", (category,)).fetchone()[0]
         count_a = cur.execute(
             "SELECT count(*) FROM answers WHERE question_id IN (SELECT id FROM questions WHERE org='fazt' AND category=?)",
@@ -141,6 +153,9 @@ def main():
         ).fetchone()[0]
         print(f"  Категория {category}: {count_q} вопросов, {count_a} ответов, {count_correct} правильных")
     conn.close()
+
+    print(f"\nГотово. Новая БД: {NEW_DB_PATH}")
+    print("Для деплоя скопируйте её на сервер в ./data/questions.db")
 
 
 if __name__ == '__main__':
